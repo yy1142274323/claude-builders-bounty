@@ -39,7 +39,7 @@ while IFS= read -r msg; do
 done < <(git log $RANGE --no-merges --pretty=format:'%s' 2>/dev/null || true)
 
 emit() {
-  # emit "<Section>" <items...>
+  # emit "<Section>" <items...> — bash 3.2-safe empty-array expansion
   [ "$#" -lt 2 ] && return
   local title="$1"; shift
   printf '### %s\n' "$title"
@@ -52,10 +52,10 @@ TOTAL=$(( ${#added[@]} + ${#fixed[@]} + ${#changed[@]} + ${#removed[@]} ))
 {
   printf '# Changelog\n\n'
   printf '## %s\n\n' "$SECTION_TITLE"
-  emit 'Added'   "${added[@]}"
-  emit 'Fixed'   "${fixed[@]}"
-  emit 'Changed' "${changed[@]}"
-  emit 'Removed' "${removed[@]}"
+  emit 'Added'   ${added[@]+"${added[@]}"}
+  emit 'Fixed'   ${fixed[@]+"${fixed[@]}"}
+  emit 'Changed' ${changed[@]+"${changed[@]}"}
+  emit 'Removed' ${removed[@]+"${removed[@]}"}
 } > "$OUT"
 
 if [ -n "$LAST_TAG" ]; then
